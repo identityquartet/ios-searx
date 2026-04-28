@@ -12,7 +12,7 @@ struct ContentView: View {
                 Divider()
                 ResultsView(vm: vm, focused: $focused)
             }
-            .navigationTitle("SearX")
+            .navigationTitle("SearXNG")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {

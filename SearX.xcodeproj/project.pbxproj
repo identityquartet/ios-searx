@@ -14,7 +14,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		DD000000000000000000009 /* SearX.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SearX.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		DD000000000000000000009 /* SearX.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SearXNG.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DD000000000000000000010 /* SearXApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearXApp.swift; sourceTree = "<group>"; };
 		DD000000000000000000011 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		DD000000000000000000012 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -64,8 +64,8 @@
 			buildPhases = (DD000000000000000000021, DD000000000000000000020, DD000000000000000000022);
 			buildRules = ();
 			dependencies = ();
-			name = SearX;
-			productName = SearX;
+			name = SearXNG;
+			productName = SearXNG;
 			productReference = DD000000000000000000009;
 			productType = "com.apple.product-type.application";
 		};
@@ -143,7 +143,7 @@
 				DEVELOPMENT_TEAM = 6ABSZ3A6F2;
 				GENERATE_INFOPLIST_FILE = NO; INFOPLIST_FILE = SearX/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/Frameworks");
-				MARKETING_VERSION = 1.0; PRODUCT_BUNDLE_IDENTIFIER = com.personal.searx;
+				MARKETING_VERSION = 1.0; PRODUCT_BUNDLE_IDENTIFIER = com.personal.searxng;
 				PRODUCT_NAME = "$(TARGET_NAME)"; SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0; TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -158,7 +158,7 @@
 				DEVELOPMENT_TEAM = 6ABSZ3A6F2;
 				GENERATE_INFOPLIST_FILE = NO; INFOPLIST_FILE = SearX/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/Frameworks");
-				MARKETING_VERSION = 1.0; PRODUCT_BUNDLE_IDENTIFIER = com.personal.searx;
+				MARKETING_VERSION = 1.0; PRODUCT_BUNDLE_IDENTIFIER = com.personal.searxng;
 				PRODUCT_NAME = "$(TARGET_NAME)"; SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0; TARGETED_DEVICE_FAMILY = "1,2";
 			};
