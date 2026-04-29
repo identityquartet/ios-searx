@@ -97,6 +97,10 @@ class SearchViewModel {
         let q = query.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !q.isEmpty, !isSearching else { return }
 
+        let bgTask = BGTaskHandle()
+        bgTask.begin(name: "SearXSearch")
+        defer { bgTask.end() }
+
         await MainActor.run { isSearching = true; results = []; answers = []; suggestions = []; totalResults = 0; errorMessage = nil }
 
         var comps = URLComponents(string: "\(instance.rawValue)/search")!
