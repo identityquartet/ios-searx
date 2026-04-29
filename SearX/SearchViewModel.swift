@@ -43,7 +43,7 @@ class SearchViewModel {
             switch self { case .vpn: return "shield.fill"; case .tor: return "network" }
         }
         var color: Color {
-            switch self { case .vpn: return .purple; case .tor: return .orange }
+            switch self { case .vpn: return .blue; case .tor: return .teal }
         }
     }
 

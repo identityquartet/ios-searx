@@ -6,161 +6,73 @@ struct ContentView: View {
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 0) {
-                headerArea
-                categoryBar
-                Divider()
-                ResultsView(vm: vm, focused: $focused)
+            Group {
+                if vm.results.isEmpty && !vm.isSearching {
+                    emptyState
+                } else if vm.category == .images {
+                    ImageGrid(results: vm.results)
+                } else {
+                    resultList
+                }
             }
             .navigationTitle("SearXNG")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    if !vm.results.isEmpty || vm.isSearching {
-                        Button { vm.clearSearch(); focused = true } label: {
-                            Image(systemName: "xmark")
-                        }
-                    }
-                }
-                ToolbarItem(placement: .topBarTrailing) {
-                    Menu {
-                        Picker("Time Range", selection: $vm.timeRange) {
-                            ForEach(SearchViewModel.TimeRange.allCases, id: \.self) { t in
-                                Text(t.label).tag(t)
-                            }
-                        }
-                    } label: {
-                        Image(systemName: vm.timeRange == .anytime ? "clock" : "clock.badge.checkmark")
-                    }
-                }
-            }
+            .navigationBarTitleDisplayMode(.large)
+            .toolbar { toolbarItems }
+            .safeAreaInset(edge: .bottom) { bottomBar }
             .alert("Error", isPresented: .constant(vm.errorMessage != nil)) {
                 Button("OK") { vm.errorMessage = nil }
             } message: { Text(vm.errorMessage ?? "") }
         }
     }
 
-    private var headerArea: some View {
-        VStack(spacing: 8) {
-            // Instance toggle
-            HStack(spacing: 8) {
-                ForEach(SearchViewModel.SearchInstance.allCases, id: \.self) { inst in
-                    Button { vm.instance = inst } label: {
-                        HStack(spacing: 5) {
-                            Image(systemName: inst.icon).font(.caption)
-                            Text(inst.label).font(.subheadline.bold())
-                        }
-                        .padding(.horizontal, 14).padding(.vertical, 7)
-                        .background(vm.instance == inst ? inst.color : Color(.tertiarySystemBackground))
-                        .foregroundStyle(vm.instance == inst ? .white : .secondary)
-                        .clipShape(Capsule())
-                    }
-                }
-                Spacer()
-                if vm.isSearching { ProgressView().scaleEffect(0.8) }
-            }
-
-            // Search bar
-            HStack(spacing: 8) {
-                HStack(spacing: 6) {
-                    Image(systemName: "magnifyingglass").foregroundStyle(.secondary)
-                    TextField("Search…", text: $vm.query)
-                        .focused($focused)
-                        .submitLabel(.search)
-                        .autocorrectionDisabled()
-                        .textInputAutocapitalization(.never)
-                        .onSubmit { Task { await vm.search() } }
-                    if !vm.query.isEmpty {
-                        Button { vm.query = "" } label: {
-                            Image(systemName: "xmark.circle.fill").foregroundStyle(.secondary)
-                        }
-                    }
-                }
-                .padding(.horizontal, 12).padding(.vertical, 9)
-                .background(Color(.secondarySystemBackground))
-                .clipShape(RoundedRectangle(cornerRadius: 12))
-
-                Button {
-                    focused = false
-                    Task { await vm.search() }
-                } label: {
-                    Image(systemName: "arrow.up.circle.fill")
-                        .font(.system(size: 34))
-                        .foregroundStyle(vm.query.trimmingCharacters(in: .whitespaces).isEmpty ? .gray : Color.accentColor)
-                }
-                .disabled(vm.query.trimmingCharacters(in: .whitespaces).isEmpty || vm.isSearching)
-            }
-        }
-        .padding(.horizontal).padding(.vertical, 10)
-    }
-
-    private var categoryBar: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 8) {
-                ForEach(SearchViewModel.SearchCategory.allCases, id: \.self) { cat in
-                    Button {
-                        vm.category = cat
-                        if !vm.results.isEmpty { Task { await vm.search() } }
-                    } label: {
-                        Label(cat.label, systemImage: cat.icon)
-                            .font(.caption)
-                            .padding(.horizontal, 12).padding(.vertical, 6)
-                            .background(vm.category == cat ? Color.accentColor : Color(.tertiarySystemBackground))
-                            .foregroundStyle(vm.category == cat ? .white : .secondary)
-                            .clipShape(Capsule())
-                    }
-                }
-            }
-            .padding(.horizontal).padding(.vertical, 6)
-        }
-    }
-}
-
-// MARK: - Results dispatcher
-struct ResultsView: View {
-    @Bindable var vm: SearchViewModel
-    @FocusState.Binding var focused: Bool
-
-    var body: some View {
-        Group {
-            if vm.results.isEmpty && !vm.isSearching && vm.errorMessage == nil {
-                emptyState
-            } else if vm.category == .images {
-                ImageGrid(results: vm.results)
-            } else {
-                resultList
-            }
-        }
-    }
+    // MARK: - Empty state
 
     private var emptyState: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: 10) {
             Spacer()
-            Image(systemName: "magnifyingglass")
-                .font(.system(size: 48)).foregroundStyle(.tertiary)
-            Text("Enter a query to search").foregroundStyle(.secondary)
+            Image(systemName: "globe")
+                .font(.system(size: 60, weight: .thin))
+                .foregroundStyle(.quaternary)
+            Text("Private · Open source · No tracking")
+                .font(.subheadline)
+                .foregroundStyle(.tertiary)
+            Spacer()
             Spacer()
         }
+        .frame(maxWidth: .infinity)
     }
+
+    // MARK: - Result list
 
     private var resultList: some View {
         List {
+            if vm.isSearching {
+                HStack(spacing: 10) {
+                    ProgressView()
+                    Text("Searching…").font(.subheadline).foregroundStyle(.secondary)
+                }
+                .listRowSeparator(.hidden)
+                .padding(.vertical, 4)
+            }
+
             if !vm.answers.isEmpty {
-                Section("Direct Answer") {
+                Section {
                     ForEach(vm.answers, id: \.self) { ans in
-                        HStack(alignment: .top, spacing: 8) {
+                        HStack(alignment: .top, spacing: 10) {
                             Image(systemName: "checkmark.circle.fill").foregroundStyle(.green)
                             Text(ans).font(.body)
                         }
+                        .padding(.vertical, 2)
                     }
                 }
             }
 
             Section {
-                ForEach(vm.results) { result in ResultRow(result: result) }
+                ForEach(vm.results) { r in ResultRow(result: r) }
             } header: {
                 if vm.totalResults > 0 {
                     Text("\(vm.totalResults.formatted()) results")
+                        .font(.caption).foregroundStyle(.tertiary).textCase(nil)
                 }
             }
 
@@ -172,7 +84,7 @@ struct ResultsView: View {
                             Task { await vm.search() }
                         } label: {
                             HStack {
-                                Image(systemName: "magnifyingglass").foregroundStyle(.secondary)
+                                Image(systemName: "magnifyingglass").foregroundStyle(.secondary).font(.subheadline)
                                 Text(s).foregroundStyle(.primary)
                                 Spacer()
                                 Image(systemName: "arrow.up.left").foregroundStyle(.tertiary).font(.caption)
@@ -184,9 +96,150 @@ struct ResultsView: View {
         }
         .listStyle(.plain)
     }
+
+    // MARK: - Bottom bar
+
+    private var bottomBar: some View {
+        VStack(spacing: 0) {
+            Divider()
+            categoryScroll
+            VStack(spacing: 8) {
+                searchRow
+                instanceRow
+            }
+            .padding(.horizontal, 16)
+            .padding(.top, 8)
+            .padding(.bottom, 8)
+        }
+        .background(.regularMaterial)
+    }
+
+    private var categoryScroll: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 6) {
+                ForEach(SearchViewModel.SearchCategory.allCases, id: \.self) { cat in
+                    Button {
+                        vm.category = cat
+                        if !vm.results.isEmpty { Task { await vm.search() } }
+                    } label: {
+                        Label(cat.label, systemImage: cat.icon)
+                            .font(.caption.weight(.medium))
+                            .padding(.horizontal, 11).padding(.vertical, 6)
+                            .background(vm.category == cat ? Color.accentColor : Color(.tertiarySystemBackground))
+                            .foregroundStyle(vm.category == cat ? .white : .secondary)
+                            .clipShape(Capsule())
+                    }
+                    .buttonStyle(.plain)
+                    .animation(.easeInOut(duration: 0.15), value: vm.category)
+                }
+            }
+            .padding(.horizontal, 16).padding(.vertical, 8)
+        }
+    }
+
+    private var searchRow: some View {
+        HStack(spacing: 10) {
+            HStack(spacing: 8) {
+                Image(systemName: "magnifyingglass")
+                    .foregroundStyle(.secondary)
+                    .font(.system(size: 15))
+                TextField("Search…", text: $vm.query)
+                    .focused($focused)
+                    .submitLabel(.search)
+                    .autocorrectionDisabled()
+                    .textInputAutocapitalization(.never)
+                    .onSubmit {
+                        focused = false
+                        Task { await vm.search() }
+                    }
+                if !vm.query.isEmpty {
+                    Button { vm.query = "" } label: {
+                        Image(systemName: "xmark.circle.fill").foregroundStyle(.secondary)
+                    }
+                }
+            }
+            .padding(.horizontal, 12).padding(.vertical, 10)
+            .background(Color(.secondarySystemBackground))
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+
+            Button {
+                focused = false
+                Task { await vm.search() }
+            } label: {
+                ZStack {
+                    Circle()
+                        .fill(canSearch ? Color.accentColor : Color(.tertiarySystemBackground))
+                    if vm.isSearching {
+                        ProgressView().tint(canSearch ? .white : .secondary).scaleEffect(0.8)
+                    } else {
+                        Image(systemName: "arrow.up")
+                            .font(.system(size: 15, weight: .semibold))
+                            .foregroundStyle(canSearch ? .white : .secondary)
+                    }
+                }
+                .frame(width: 42, height: 42)
+            }
+            .disabled(!canSearch || vm.isSearching)
+            .animation(.easeInOut(duration: 0.15), value: canSearch)
+        }
+    }
+
+    private var canSearch: Bool {
+        !vm.query.trimmingCharacters(in: .whitespaces).isEmpty
+    }
+
+    private var instanceRow: some View {
+        HStack(spacing: 0) {
+            ForEach(SearchViewModel.SearchInstance.allCases, id: \.self) { inst in
+                Button { vm.instance = inst } label: {
+                    HStack(spacing: 5) {
+                        Image(systemName: inst.icon).font(.caption2.weight(.medium))
+                        Text(inst.label).font(.caption.weight(.medium))
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 7)
+                    .background(vm.instance == inst ? Color.accentColor.opacity(0.12) : Color.clear)
+                    .foregroundStyle(vm.instance == inst ? Color.accentColor : Color.secondary)
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .background(Color(.tertiarySystemBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 10))
+        .animation(.easeInOut(duration: 0.15), value: vm.instance)
+    }
+
+    // MARK: - Toolbar
+
+    @ToolbarContentBuilder
+    private var toolbarItems: some ToolbarContent {
+        ToolbarItem(placement: .topBarLeading) {
+            if !vm.results.isEmpty || vm.isSearching {
+                Button {
+                    vm.clearSearch()
+                    focused = true
+                } label: {
+                    Image(systemName: "xmark")
+                }
+            }
+        }
+        ToolbarItem(placement: .topBarTrailing) {
+            Menu {
+                Picker("Time Range", selection: $vm.timeRange) {
+                    ForEach(SearchViewModel.TimeRange.allCases, id: \.self) { t in
+                        Text(t.label).tag(t)
+                    }
+                }
+            } label: {
+                Image(systemName: vm.timeRange == .anytime ? "clock" : "clock.badge.checkmark")
+            }
+        }
+    }
 }
 
 // MARK: - Result row
+
 struct ResultRow: View {
     let result: SearxResult
 
@@ -195,37 +248,22 @@ struct ResultRow: View {
             if let url = URL(string: result.url) { UIApplication.shared.open(url) }
         } label: {
             VStack(alignment: .leading, spacing: 5) {
-                HStack {
-                    Text(result.displayHost)
-                        .font(.caption).foregroundStyle(.secondary).lineLimit(1)
-                    Spacer()
-                    if let date = result.publishedDate, !date.isEmpty {
-                        Text(shortDate(date))
-                            .font(.caption2).foregroundStyle(.tertiary)
-                    }
-                }
+                Text(result.displayHost)
+                    .font(.caption).foregroundStyle(.secondary).lineLimit(1)
                 Text(result.title)
-                    .font(.body.bold()).foregroundStyle(.primary)
+                    .font(.body.weight(.medium)).foregroundStyle(.primary)
                     .lineLimit(2).multilineTextAlignment(.leading)
                 if !result.content.isEmpty {
                     Text(result.content)
                         .font(.caption).foregroundStyle(.secondary)
                         .lineLimit(3).multilineTextAlignment(.leading)
                 }
-                if !result.engines.isEmpty {
-                    HStack(spacing: 4) {
-                        ForEach(result.engines.prefix(3), id: \.self) { eng in
-                            Text(eng)
-                                .font(.caption2)
-                                .padding(.horizontal, 6).padding(.vertical, 2)
-                                .background(Color(.tertiarySystemBackground))
-                                .clipShape(Capsule())
-                                .foregroundStyle(.secondary)
-                        }
-                    }
+                if let date = result.publishedDate, !date.isEmpty {
+                    Text(shortDate(date))
+                        .font(.caption2).foregroundStyle(.tertiary)
                 }
             }
-            .padding(.vertical, 4)
+            .padding(.vertical, 3)
         }
         .buttonStyle(.plain)
         .contextMenu {
@@ -259,6 +297,7 @@ struct ResultRow: View {
 }
 
 // MARK: - Image grid
+
 struct ImageGrid: View {
     let results: [SearxResult]
     let cols = [GridItem(.adaptive(minimum: 150), spacing: 3)]
@@ -274,7 +313,7 @@ struct ImageGrid: View {
                             switch phase {
                             case .success(let img):
                                 img.resizable().aspectRatio(contentMode: .fill)
-                                   .frame(height: 140).clipped()
+                                    .frame(height: 140).clipped()
                             case .failure, .empty:
                                 Color(.systemGray5).frame(height: 140)
                                     .overlay { Image(systemName: "photo").foregroundStyle(.tertiary) }
