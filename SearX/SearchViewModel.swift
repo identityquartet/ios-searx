@@ -1,7 +1,7 @@
 import Foundation
 import SwiftUI
 
-struct SearxResult: Identifiable {
+struct SearchResult: Identifiable {
     let id = UUID()
     let title: String
     let url: String
@@ -16,17 +16,17 @@ struct SearxResult: Identifiable {
 @Observable
 class SearchViewModel {
     var instance: SearchInstance {
-        didSet { UserDefaults.standard.set(instance.rawValue, forKey: "searxInstance") }
+        didSet { UserDefaults.standard.set(instance.rawValue, forKey: "stacknestInstance") }
     }
     var category: SearchCategory {
-        didSet { UserDefaults.standard.set(category.rawValue, forKey: "searxCategory") }
+        didSet { UserDefaults.standard.set(category.rawValue, forKey: "stacknestCategory") }
     }
     var timeRange: TimeRange {
-        didSet { UserDefaults.standard.set(timeRange.rawValue, forKey: "searxTimeRange") }
+        didSet { UserDefaults.standard.set(timeRange.rawValue, forKey: "stacknestTimeRange") }
     }
 
     var query: String = ""
-    var results: [SearxResult] = []
+    var results: [SearchResult] = []
     var answers: [String] = []
     var suggestions: [String] = []
     var totalResults: Int = 0
@@ -85,11 +85,11 @@ class SearchViewModel {
     }
 
     init() {
-        let savedInst = UserDefaults.standard.string(forKey: "searxInstance") ?? SearchInstance.vpn.rawValue
+        let savedInst = UserDefaults.standard.string(forKey: "stacknestInstance") ?? SearchInstance.vpn.rawValue
         instance = SearchInstance(rawValue: savedInst) ?? .vpn
-        let savedCat = UserDefaults.standard.string(forKey: "searxCategory") ?? SearchCategory.general.rawValue
+        let savedCat = UserDefaults.standard.string(forKey: "stacknestCategory") ?? SearchCategory.general.rawValue
         category = SearchCategory(rawValue: savedCat) ?? .general
-        let savedTime = UserDefaults.standard.string(forKey: "searxTimeRange") ?? TimeRange.anytime.rawValue
+        let savedTime = UserDefaults.standard.string(forKey: "stacknestTimeRange") ?? TimeRange.anytime.rawValue
         timeRange = TimeRange(rawValue: savedTime) ?? .anytime
     }
 
@@ -98,7 +98,7 @@ class SearchViewModel {
         guard !q.isEmpty, !isSearching else { return }
 
         let bgTask = BGTaskHandle()
-        bgTask.begin(name: "SearXSearch")
+        bgTask.begin(name: "StacknestSearch")
         defer { bgTask.end() }
 
         await MainActor.run { isSearching = true; results = []; answers = []; suggestions = []; totalResults = 0; errorMessage = nil }
@@ -139,7 +139,7 @@ class SearchViewModel {
 
             let resp = try JSONDecoder().decode(Resp.self, from: data)
             let mapped = resp.results.map {
-                SearxResult(title: $0.title, url: $0.url, content: $0.content ?? "",
+                SearchResult(title: $0.title, url: $0.url, content: $0.content ?? "",
                             engines: $0.engines ?? [], publishedDate: $0.publishedDate,
                             imgSrc: $0.img_src.flatMap { $0.isEmpty ? nil : $0 },
                             thumbnailSrc: $0.thumbnail_src.flatMap { $0.isEmpty ? nil : $0 })

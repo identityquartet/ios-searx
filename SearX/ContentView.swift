@@ -15,7 +15,7 @@ struct ContentView: View {
                     resultList
                 }
             }
-            .navigationTitle("SearXNG")
+            .navigationTitle("Stacknest")
             .navigationBarTitleDisplayMode(.large)
             .toolbar { toolbarItems }
             .safeAreaInset(edge: .bottom) { bottomBar }
@@ -241,7 +241,7 @@ struct ContentView: View {
 // MARK: - Result row
 
 struct ResultRow: View {
-    let result: SearxResult
+    let result: SearchResult
 
     var body: some View {
         Button {
@@ -299,7 +299,7 @@ struct ResultRow: View {
 // MARK: - Image grid
 
 struct ImageGrid: View {
-    let results: [SearxResult]
+    let results: [SearchResult]
     let cols = [GridItem(.adaptive(minimum: 150), spacing: 3)]
 
     var body: some View {

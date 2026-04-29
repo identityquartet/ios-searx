@@ -2,7 +2,7 @@ import SwiftUI
 import UIKit
 
 @main
-struct SearXApp: App {
+struct StacknestApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
