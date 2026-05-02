@@ -262,6 +262,9 @@ struct ResultRow: View {
                     Text(shortDate(date))
                         .font(.caption2).foregroundStyle(.tertiary)
                 }
+                if !result.engines.isEmpty {
+                    EngineTagsRow(engines: result.engines)
+                }
             }
             .padding(.vertical, 3)
         }
@@ -293,6 +296,30 @@ struct ResultRow: View {
             }
         }
         return String(s.prefix(10))
+    }
+}
+
+// MARK: - Engine tags
+
+struct EngineTagsRow: View {
+    let engines: [String]
+
+    var body: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 4) {
+                ForEach(engines, id: \.self) { engine in
+                    Text(engine.capitalized)
+                        .font(.system(size: 10, weight: .medium))
+                        .foregroundStyle(.secondary)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(Color(.tertiarySystemBackground))
+                        .clipShape(Capsule())
+                        .overlay(Capsule().strokeBorder(Color(.separator), lineWidth: 0.5))
+                }
+            }
+        }
+        .padding(.top, 1)
     }
 }
 
