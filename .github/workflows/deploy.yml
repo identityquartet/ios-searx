@@ -48,9 +48,9 @@ jobs:
       - name: Archive
         run: |
           xcodebuild archive \
-            -project SearX.xcodeproj -scheme SearX \
+            -project SearX.xcodeproj -scheme Stacknest \
             -destination "generic/platform=iOS" \
-            -archivePath "$RUNNER_TEMP/SearX.xcarchive" \
+            -archivePath "$RUNNER_TEMP/Stacknest.xcarchive" \
             CODE_SIGN_STYLE=Manual \
             CODE_SIGN_IDENTITY="Apple Distribution" \
             PROVISIONING_PROFILE="${{ secrets.PROFILE_UUID }}" \
@@ -82,7 +82,7 @@ jobs:
           </plist>
           PLIST
           xcodebuild -exportArchive \
-            -archivePath "$RUNNER_TEMP/SearX.xcarchive" \
+            -archivePath "$RUNNER_TEMP/Stacknest.xcarchive" \
             -exportOptionsPlist /tmp/ExportOptions.plist \
             -exportPath "$RUNNER_TEMP/export" \
             -authenticationKeyPath ~/private_keys/AuthKey_9AHH974Y96.p8 \
