@@ -131,8 +131,12 @@ class SearchViewModel {
                     let img_src: String?
                     let thumbnail_src: String?
                 }
+                // SearXNG returns answers as objects {answer, url, engine, ...} not plain strings
+                struct Ans: Decodable {
+                    let answer: String?
+                }
                 let results: [R]
-                let answers: [String]?
+                let answers: [Ans]?
                 let suggestions: [String]?
                 let number_of_results: Double?
             }
@@ -146,7 +150,7 @@ class SearchViewModel {
             }
             await MainActor.run {
                 results = mapped
-                answers = resp.answers ?? []
+                answers = resp.answers?.compactMap { $0.answer } ?? []
                 suggestions = resp.suggestions ?? []
                 totalResults = Int(resp.number_of_results ?? 0)
                 isSearching = false
